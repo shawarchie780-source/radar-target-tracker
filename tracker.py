@@ -36,12 +36,55 @@ meas_bearing = true_bearing + np.random.normal(0, bearing_noise, steps)
 meas_x = meas_range * np.cos(meas_bearing)
 meas_y = meas_range * np.sin(meas_bearing)
 
+alpha = 0.5
+beta = 0.1
+
+est_x = [meas_x[0]]
+est_vx = [-200.0]
+for k in range(1, steps):
+    predicted = est_x[-1] + est_vx[-1] * dt
+    surprise = meas_x[k] - predicted
+    new_x = predicted + alpha * surprise
+    new_vx = est_vx[-1] + beta * surprise / dt
+    est_x.append(new_x)
+    est_vx.append(new_vx)
+
+est_y = [meas_y[0]]
+est_vy = [0.0]
+for k in range(1, steps):
+    predicted = est_y[-1] + est_vy[-1] * dt
+    surprise = meas_y[k] - predicted
+    new_y = predicted + alpha * surprise
+    new_vy = est_vy[-1] + beta * surprise / dt
+    est_y.append(new_y)
+    est_vy.append(new_vy)
+
+
 plt.plot(true_path[:,0], true_path[:,1], label="True Path")
 plt.scatter(meas_x, meas_y, s=10, color="red", label="Radar Measurements")
 plt.scatter(0, 0, marker="^", color="black", label="Radar")
+plt.plot(est_x, est_y, color="green", label="Radar")
 plt.axis("equal")
 plt.xlabel("x (m)")
 plt.ylabel("y (m)")
 plt.legend()
 plt.show()
+
+plt.figure()
+plt.plot(true_path[:,0], label="True x")
+plt.plot(meas_x, ".", label="Measured x")
+plt.plot(est_x, label="Filtered x")
+plt.xlabel("step")
+plt.ylabel("x (m)")
+plt.legend()
+plt.show()
+
+plt.figure()
+plt.plot(range(1, steps), np.diff(true_path[:, 0]) / dt, label="True vx")
+plt.plot(est_vx, label="Estimated vx")
+plt.xlabel("step")
+plt.ylabel("x velocity (m/s)")
+plt.legend()
+plt.show()
+
                           
