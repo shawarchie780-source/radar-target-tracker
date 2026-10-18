@@ -2,7 +2,7 @@
 
 A Python project that tracks a moving object of certain colour from a noisy environment. It has two main versions, one where it simulates aircraft watched by a noisy radar and plots graphs to show this and the other uses live laptop webcam tracker that follows a moving coloured object and tracks it.
 
-##Demo
+## Demo
 
 ![Radar Simulation](image.png)
 ![Webcam Tracker](image-1.png)
