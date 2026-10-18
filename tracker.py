@@ -39,29 +39,44 @@ meas_y = meas_range * np.sin(meas_bearing)
 alpha = 0.25
 beta = alpha**2 / (2 - alpha)
 
+R = range_noise**2       # radar noise, in squared metres
+Q = 100000.0           # how much extra doubt we add each step
+P = R              # start out unsure
+
 est_x = [meas_x[0]]
 est_vx = [-200.0]
 for k in range(1, steps):
     predicted = est_x[-1] + est_vx[-1] * dt
+    P = P + Q
+    K = P/(P+R)
     surprise = meas_x[k] - predicted
-    new_x = predicted + alpha * surprise
-    new_vx = est_vx[-1] + beta * surprise / dt
+    new_x = predicted + K * surprise
+    new_vx = est_vx[-1] + (K**2 / (2 - K)) * surprise / dt
+    P = (1-K)*P
     est_x.append(new_x)
     est_vx.append(new_vx)
 
+print("final K", K)
+
+Py = R
 est_y = [meas_y[0]]
 est_vy = [0.0]
 for k in range(1, steps):
     predicted = est_y[-1] + est_vy[-1] * dt
+    Py = Py + Q
+    Ky = Py/(Py+R)
     surprise = meas_y[k] - predicted
-    new_y = predicted + alpha * surprise
-    new_vy = est_vy[-1] + beta * surprise / dt
+    new_y = predicted + Ky * surprise
+    new_vy = est_vy[-1] + (Ky**2 / (2 - Ky)) * surprise / dt
+    Py = (1-Ky)*Py
     est_y.append(new_y)
     est_vy.append(new_vy)
 
 err = np.sqrt((np.array(est_x) - true_path[:, 0])**2 + (np.array(est_y) - true_path[:, 1])**2)
 print("alpha", alpha, "beta", beta, "mean error", np.mean(err))
 
+raw_err = np.sqrt((meas_x - true_path[:, 0])**2 + (meas_y - true_path[:, 1])**2)
+print("raw measurement error", np.mean(raw_err))
 
 plt.plot(true_path[:,0], true_path[:,1], label="True Path")
 plt.scatter(meas_x, meas_y, s=10, color="red", label="Radar Measurements")
