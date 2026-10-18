@@ -36,8 +36,8 @@ meas_bearing = true_bearing + np.random.normal(0, bearing_noise, steps)
 meas_x = meas_range * np.cos(meas_bearing)
 meas_y = meas_range * np.sin(meas_bearing)
 
-alpha = 0.5
-beta = 0.1
+alpha = 0.25
+beta = alpha**2 / (2 - alpha)
 
 est_x = [meas_x[0]]
 est_vx = [-200.0]
@@ -58,6 +58,9 @@ for k in range(1, steps):
     new_vy = est_vy[-1] + beta * surprise / dt
     est_y.append(new_y)
     est_vy.append(new_vy)
+
+err = np.sqrt((np.array(est_x) - true_path[:, 0])**2 + (np.array(est_y) - true_path[:, 1])**2)
+print("alpha", alpha, "beta", beta, "mean error", np.mean(err))
 
 
 plt.plot(true_path[:,0], true_path[:,1], label="True Path")

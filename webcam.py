@@ -6,7 +6,7 @@ cap = cv2.VideoCapture(0)
 lower = np.array([40, 100, 100])
 upper = np.array([80, 255, 255])
 
-alpha, beta = 0.5, 0.1
+alpha, beta = 0.1, 0.1
 dt = 1.0                    # one video frame per step
 x = y = vx = vy = 0.0
 started = False
